@@ -1,48 +1,16 @@
 import random
 import modular_functions
-
-#generates random integers between 2 numbers
-def random_between(n1,n2):
-   return random.randrange(n1, n2,1)
-
-
-def MillerTest(n,m):
-    a = random_between(2,n-2)
-    x = modular_functions.modpow(a,m,n)
-    if(x == 1 or x == n-1):
-        return True
-    while(m != n-1):
-        x = (x*x) % n;
-        m= m*2
-        if(x==1):
-            return False
-        if(x==n-1):
-            return True
-    return False
-
-
-def isprime(n,k):
-    if(n<=1 or n == 4):
-        return False
-    if(n<=3):
-        return True
-    m = n-1
-    while(m % 2 == 0):
-        m = m/2
-    for i in k:
-        if(not MillerTest(n,int(m))):
-            return False
-    return True
+import primecheck
 
 
 def random_number_gen(lower,upper):
-    return random_between(random.getrandbits(lower),int((random.getrandbits(lower)+random.getrandbits(upper))*1.5))
+    return primecheck.random_between(random.getrandbits(lower),int((random.getrandbits(lower)+random.getrandbits(upper))*1.5))
 
 
 def RSA_prime_gen(lower,upper):
     n1= random_number_gen(lower,upper)
     index = 0;
-    while(not isprime(n1,[1,2])):
+    while(not primecheck.isprime(n1,[1,2])):
         index=index+1;
         n1= random_number_gen(lower,upper)
     #print("primegen:"+str(n1)+" index: "+str(index))
@@ -58,11 +26,11 @@ def RSA_n_fin(min,max):
 
 
 def random_e(fi_n):
-    e= random_between(1,fi_n)
+    e= primecheck.random_between(1,fi_n)
     gcd,x,y = modular_functions.ext_euc(e,fi_n)
     while(gcd != 1):
-        e= random_between(1,fi_n)
-        gcd,x,y = ext_euc(e,fi_n)
+        e= primecheck.random_between(1,fi_n)
+        gcd,x,y = modular_functions.ext_euc(e,fi_n)
     return e
 
 
