@@ -1,0 +1,152 @@
+import random
+import modular_functions
+
+#generates random integers between 2 numbers
+def random_between(n1,n2):
+   return random.randrange(n1, n2,1)
+
+
+def MillerTest(n,m):
+    a = random_between(2,n-2)
+    x = modular_functions.modpow(a,m,n)
+    if(x == 1 or x == n-1):
+        return True
+    while(m != n-1):
+        x = (x*x) % n;
+        m= m*2
+        if(x==1):
+            return False
+        if(x==n-1):
+            return True
+    return False
+
+
+def isprime(n,k):
+    if(n<=1 or n == 4):
+        return False
+    if(n<=3):
+        return True
+    m = n-1
+    while(m % 2 == 0):
+        m = m/2
+    for i in k:
+        if(not MillerTest(n,int(m))):
+            return False
+    return True
+
+
+def random_number_gen(lower,upper):
+    return random_between(random.getrandbits(lower),int((random.getrandbits(lower)+random.getrandbits(upper))*1.5))
+
+
+def RSA_prime_gen(lower,upper):
+    n1= random_number_gen(lower,upper)
+    index = 0;
+    while(not isprime(n1,[1,2])):
+        index=index+1;
+        n1= random_number_gen(lower,upper)
+    #print("primegen:"+str(n1)+" index: "+str(index))
+    return n1;
+
+
+def RSA_n_fin(min,max):
+    p = RSA_prime_gen(min,max)
+    q = RSA_prime_gen(min,max)
+    n = p*q
+    fi_n=(p-1)*(q-1)
+    return n,fi_n,p,q
+
+
+def random_e(fi_n):
+    e= random_between(1,fi_n)
+    gcd,x,y = modular_functions.ext_euc(e,fi_n)
+    while(gcd != 1):
+        e= random_between(1,fi_n)
+        gcd,x,y = ext_euc(e,fi_n)
+    return e
+
+
+def secret_key_gen():
+    n,fi_n,p,q = RSA_n_fin(30,35)
+    e = random_e(fi_n)
+    #print("n:"+str(n)+"\nfi_n:"+str(fi_n)+"\ne:"+str(e))
+    d = modular_functions.modinvers(e,fi_n)
+    return d,e,n,p,q
+
+
+def enc(m,e,n):
+    return modular_functions.modpow(m,e,n)
+
+
+def dec(c,d,n):
+    return modular_functions.modpow(c,d,n)
+
+
+def RSA_run_enc(m,d,e,n,p,q):
+    c = enc(m,e,n)
+    return c
+
+
+def RSA_run_dec(c,d,n,p,q):
+    message = dec(c,d,n)
+    mp =dec(c,d,p)
+    mq =dec(c,d,q)
+    return mp
+
+
+#creates a list of characters from the string
+def string_to_charlist(string):
+    return list(string)
+
+
+#creates a list of integers from the character list
+def charlist_to_intlist(charlist):
+    intlist = []
+    for character in charlist:
+        integer = ord(character)
+        intlist.append(integer)
+    return intlist
+
+
+def RSA_for_message_enc(intlist,d,e,n,p,q):
+    encrypted_int_list = []
+    for integer in intlist:
+        c = RSA_run_enc(integer,d,e,n,p,q)
+        encrypted_int_list.append(c)
+    return encrypted_int_list
+
+
+def RSA_for_message_dec(encrypted_int_list,d,n,p,q):
+    decrypted_int_list = []
+    for integer in encrypted_int_list:
+        mp = RSA_run_dec(integer,d,n,p,q)
+        decrypted_int_list.append(mp)
+    return decrypted_int_list
+
+
+def decrypted_int_list_to_char_list(decrypted_int_list):
+    dec_char_list = []
+    for integer in decrypted_int_list:
+        char = chr(integer)
+        dec_char_list.append(char)
+    return dec_char_list
+
+
+def dec_char_list_to_string(dec_char_list):
+    return "".join(dec_char_list)
+
+
+#driver code here
+def main(text):
+    charlist = string_to_charlist(text)
+    intlist = charlist_to_intlist(charlist)
+    d,e,n,p,q = secret_key_gen()
+    encrypted_int_list = RSA_for_message_enc(intlist,d,e,n,p,q)
+    decrypted_int_list = RSA_for_message_dec(encrypted_int_list,d,n,p,q)
+    print("encrypted values:")
+    print(encrypted_int_list)
+    dec_char_list = decrypted_int_list_to_char_list(decrypted_int_list)
+    print(dec_char_list_to_string(dec_char_list))
+    return
+
+main("something fun pls")
