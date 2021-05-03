@@ -1,5 +1,6 @@
 import random
 import modular_functions
+
 #generates random integers between 2 numbers
 def random_between(n1,n2):
    return random.randrange(n1, n2,1)
@@ -21,13 +22,15 @@ def MillerTest(n,m):
 
 
 def isprime(n,k):
+    i =0
+
     if(n<=1 or n == 4):
         return False
     if(n<=3):
         return True
     m = n-1
     while(m % 2 == 0):
-        m = m/2
+        m = m//2
     for i in k:
         if(not MillerTest(n,int(m))):
             return False
